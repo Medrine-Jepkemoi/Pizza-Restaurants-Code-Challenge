@@ -18,7 +18,8 @@ db.init_app(app)
 def get_restaurants():
     restaurant_list = []
 
-    for restaurant in Restaurant.query.all():
+    restaurants = Restaurant.query.all()
+    for restaurant in restaurants:
         restaurant_data = {
             'id': restaurant.id,
             'name': restaurant.name,
@@ -63,7 +64,7 @@ def get_restaurant(id):
 
 
 @app.route('/restaurants', methods=['POST'])
-def create_restaurant():
+def newrestaurant():
     data = request.get_json()
 
     name = data.get('name')
@@ -76,13 +77,13 @@ def create_restaurant():
     db.session.add(restaurant)
     db.session.commit()
 
-    restaurant_data = {
+    newrestaurantdata = {
         'id': restaurant.id,
         'name': restaurant.name,
         'address': restaurant.address
     }
     response=make_response(
-        jsonify(restaurant_data),
+        jsonify(newrestaurantdata),
         201
     )
 
@@ -109,7 +110,7 @@ def update_restaurant(id):
     db.session.commit()
 
     response= make_response(
-        jsonify({'message': 'Restaurant updated'}),200
+        jsonify({'message': 'Restaurant has been updated'}),200
     )
     return response
 
@@ -117,7 +118,7 @@ def update_restaurant(id):
 
 
 @app.route('/restaurants/<int:id>', methods=['DELETE'])
-def delete_restaurant(id):
+def remove_restaurant(id):
     restaurant = Restaurant.query.get(id)
 
     if restaurant is None:

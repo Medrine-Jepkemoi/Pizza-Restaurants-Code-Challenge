@@ -12,7 +12,6 @@ db.init_app(app)
 
 fake = Faker()
 
-# Import the necessary SQLAlchemy models from your models.py file
 
 def seed_data():
     with app.app_context():
@@ -21,36 +20,28 @@ def seed_data():
         Restaurant.query.delete()
         Pizza.query.delete()
 
-        # Create some restaurants
         for _ in range(25):
             restaurant = Restaurant(name=fake.company(), address=fake.address())
             db.session.add(restaurant)
 
-        # Create some pizzas
+
         for _ in range(30):
             pizza = Pizza(name=fake.word(), ingredients=fake.text())
             db.session.add(pizza)
-
-        # Add objects to the session
         db.session.commit()
 
-        # Add relationships between restaurants and pizzas
         restaurants = Restaurant.query.all()
         pizzas = Pizza.query.all()
 
         for restaurant in restaurants:
-            # Randomly select a few pizzas to associate with each restaurant
             pizzas_to_associate = fake.random_elements(elements=pizzas, length=fake.random_int(min=1, max=5), unique=True)
 
             for pizza in pizzas_to_associate:
-                # Create a RestaurantPizza object to represent the relationship
                 restaurant_pizza = RestaurantPizza(price=fake.random_int(min=5, max=20), restaurant=restaurant, pizza=pizza)
                 db.session.add(restaurant_pizza)
 
-        # Commit the changes to the database
         db.session.commit()
 
-# Call the seed_data function to populate the tables
 seed_data()
 
 if __name__ == '__main__':
