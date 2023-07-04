@@ -1,22 +1,24 @@
-from flask import Flask, jsonify, request
-from flask_migrate import Migrate
-from models import db, Restaurant, Pizza, RestaurantPizza
 
+
+from flask import Flask, request, make_response, jsonify
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+
+
+from models import db, Restaurant, RestaurantPizza, Pizza
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db.init_app(app)
 migrate = Migrate(app, db)
 
-
+db.init_app(app)
 
 @app.route('/restaurants', methods=['GET'])
 def get_restaurants():
-    restaurants = Restaurant.query.all()
     restaurant_list = []
 
-    for restaurant in restaurants:
+    for restaurant in Restaurant.query.all():
         restaurant_data = {
             'id': restaurant.id,
             'name': restaurant.name,
@@ -24,7 +26,13 @@ def get_restaurants():
         }
         restaurant_list.append(restaurant_data)
 
-    return jsonify(restaurant_list)
+    response=make_response(
+        jsonify(restaurant_list),
+        201
+    )
+
+    return response
+
 
 
 @app.route('/restaurants/<int:id>', methods=['GET'])
@@ -69,12 +77,16 @@ def create_restaurant():
     db.session.commit()
 
     restaurant_data = {
+        'id': restaurant.id,
         'name': restaurant.name,
         'address': restaurant.address
     }
+    response=make_response(
+        jsonify(restaurant_data),
+        201
+    )
 
-    return jsonify(restaurant_data), 201
-
+    return response
 
 @app.route('/restaurants/<int:id>', methods=['PUT'])
 def update_restaurant(id):
@@ -96,7 +108,12 @@ def update_restaurant(id):
 
     db.session.commit()
 
-    return jsonify({'message': 'Restaurant updated'}), 200
+    response= make_response(
+        jsonify({'message': 'Restaurant updated'}),200
+    )
+    return response
+
+    
 
 
 @app.route('/restaurants/<int:id>', methods=['DELETE'])
@@ -126,8 +143,7 @@ def get_pizzas():
         pizza_list.append(pizza_data)
 
     return jsonify(pizza_list), 200
-
-
+    
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5555)
